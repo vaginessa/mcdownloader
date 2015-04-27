@@ -112,13 +112,14 @@ public class DownloadQueue implements Runnable {
                 MiscTools.swingSetEnabled(dlbox.speed, false, false);
                 MiscTools.swingSetEnabled(dlbox.slots_label, false, false);
                 MiscTools.swingSetEnabled(dlbox.slots, false, false);
-                MiscTools.swingSetEnabled(dlbox.cbc_check, false, false);
+                
+                MiscTools.swingSetVisible(dlbox.stop_button, true, false);
+                MiscTools.swingSetVisible(dlbox.keep_temp, true, false);
+                
                 dlbox.down.setPause(true);
             }
         }
-        
-        MiscTools.swingSetVisible(this.panel.pause_all, false, false);
-        
+            
         this.secureNotify();
     }
     
@@ -252,7 +253,7 @@ public class DownloadQueue implements Runnable {
                         
                         this.panel.jPanel2.add(dlbox);
                         
-                        if(!dlbox.down.isPause()) {
+                        if(dlbox.down.downloading && !dlbox.down.isPause()) {
 
                             MiscTools.swingSetVisible(this.panel.pause_all, true, false);
 

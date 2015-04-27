@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import static mcdownloader.DownloadQueue.PROVISION_ANTIFLOOD;
 
 
 public class DownloaderBox extends javax.swing.JPanel {
@@ -52,7 +51,7 @@ public class DownloaderBox extends javax.swing.JPanel {
         mcdownloader.MiscTools.updateFont(this.slots, font, Font.PLAIN);
         mcdownloader.MiscTools.updateFont(this.pause_button, font, Font.BOLD);
         mcdownloader.MiscTools.updateFont(this.stop_button, font, Font.BOLD);
-        mcdownloader.MiscTools.updateFont(this.cbc_check, font, Font.PLAIN);
+   
         mcdownloader.MiscTools.updateFont(this.keep_temp, font, Font.PLAIN);
         mcdownloader.MiscTools.updateFont(this.fname_label, font, Font.PLAIN);
         mcdownloader.MiscTools.updateFont(this.closebutton, font, Font.PLAIN);
@@ -64,7 +63,7 @@ public class DownloaderBox extends javax.swing.JPanel {
         this.panel = panel;
         this.slots.setModel(new SpinnerNumberModel(this.panel.default_slots, Downloader.MIN_WORKERS, Downloader.MAX_WORKERS, 1));
         ((JSpinner.DefaultEditor)this.slots.getEditor()).getTextField().setEditable(false);
-        this.cbc_check.setVisible(false);
+        
         this.pause_button.setVisible(false);
         this.stop_button.setVisible(false);
         this.speed.setForeground(new Color(0,128,255));
@@ -102,7 +101,6 @@ public class DownloaderBox extends javax.swing.JPanel {
         slots_label = new javax.swing.JLabel();
         slots = new javax.swing.JSpinner();
         rem_time = new javax.swing.JLabel();
-        cbc_check = new javax.swing.JCheckBox();
         speed = new javax.swing.JLabel();
         progress = new javax.swing.JProgressBar();
         pause_button = new javax.swing.JButton();
@@ -131,10 +129,6 @@ public class DownloaderBox extends javax.swing.JPanel {
 
         rem_time.setFont(new java.awt.Font("Verdana", 1, 16)); // NOI18N
         rem_time.setText("remaining_time");
-
-        cbc_check.setFont(new java.awt.Font("Dialog", 1, 16)); // NOI18N
-        cbc_check.setSelected(true);
-        cbc_check.setText("Check file integrity");
 
         speed.setFont(new java.awt.Font("Verdana", 3, 24)); // NOI18N
         speed.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -206,8 +200,7 @@ public class DownloaderBox extends javax.swing.JPanel {
                         .addComponent(pause_button))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(rem_time)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(cbc_check))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(closebutton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -242,10 +235,8 @@ public class DownloaderBox extends javax.swing.JPanel {
                     .addComponent(fname_label)
                     .addComponent(copy_button, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(rem_time)
-                    .addComponent(cbc_check))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rem_time)
+                .addGap(6, 6, 6)
                 .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -257,7 +248,7 @@ public class DownloaderBox extends javax.swing.JPanel {
                     .addComponent(stop_button)
                     .addComponent(closebutton)
                     .addComponent(restart_download))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -308,7 +299,7 @@ public class DownloaderBox extends javax.swing.JPanel {
             this.speed.setEnabled(true);
             this.slots_label.setEnabled(true);
             this.slots.setEnabled(true);
-            this.cbc_check.setEnabled(true);
+            
             this.stop_button.setVisible(false);
             this.keep_temp.setVisible(false);
             this.pause_button.setEnabled(true);
@@ -323,7 +314,9 @@ public class DownloaderBox extends javax.swing.JPanel {
             this.speed.setEnabled(false);
             this.slots_label.setEnabled(false);
             this.slots.setEnabled(false);
-            this.cbc_check.setEnabled(false);
+            
+            this.stop_button.setVisible(true);
+            this.keep_temp.setVisible(true);
             this.down.setPause(true);
             
         }
@@ -363,7 +356,6 @@ public class DownloaderBox extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    protected javax.swing.JCheckBox cbc_check;
     protected javax.swing.JButton closebutton;
     protected javax.swing.JButton copy_button;
     protected javax.swing.JLabel fname_label;

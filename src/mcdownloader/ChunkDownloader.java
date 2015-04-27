@@ -63,18 +63,19 @@ public class ChunkDownloader implements Runnable {
 
                 try{
 
-                   if(this.downloader.isPause()) {
-
-                        this.downloader.pause_worker();
-
-                        synchronized(this.downloader.getPauseLock())
-                        {
-                            this.downloader.printDebug("Worker ["+this.id+"] sleeping...");
-                            this.downloader.getPauseLock().wait();
-                        }
-                   }
-
                     if(!this.exit && !this.downloader.isExit()) {
+                        
+                        if(this.downloader.isPause()) {
+
+                            this.downloader.pause_worker();
+
+                            synchronized(this.downloader.getPauseLock())
+                            {
+                                this.downloader.printDebug("Worker ["+this.id+"] sleeping...");
+                                this.downloader.getPauseLock().wait();
+                            }
+                        }
+                        
                         this.downloader.printDebug("Worker ["+this.id+"] downloading chunk ["+chunk.getId()+"]...");
 
                         chunk_ok=false;

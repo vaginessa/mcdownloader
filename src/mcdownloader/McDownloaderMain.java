@@ -33,10 +33,11 @@ import javax.swing.JOptionPane;
 
 public class McDownloaderMain extends javax.swing.JFrame {
 
-    public static final String VERSION="beta 0.2.5";
+    public static final String VERSION="beta 0.2.8";
     public static final int MAX_DOWNLOADS_DEFAULT = 2;
     public static final int MAX_DOWNLOADS_MAX = 20;
     public static final String LOCK_FILE="mcdownloader.lock";
+    public static final boolean VERIFY_CBC_MAC=false;
     
     
     protected final GlobalSpeedMeter global_speed_meter;

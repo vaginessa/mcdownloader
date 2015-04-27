@@ -43,6 +43,7 @@ public class Settings extends javax.swing.JDialog {
         mcdownloader.MiscTools.updateFont(this.jSpinner1, font, Font.PLAIN);
         mcdownloader.MiscTools.updateFont(this.jLabel3, font, Font.PLAIN);
         mcdownloader.MiscTools.updateFont(this.jSpinner3, font, Font.PLAIN);
+        mcdownloader.MiscTools.updateFont(this.jCheckBox1, font, Font.PLAIN);
         
         
             
@@ -79,8 +80,15 @@ public class Settings extends javax.swing.JDialog {
             this.jSpinner3.setModel(new SpinnerNumberModel(max_downloads, 1, McDownloaderMain.MAX_DOWNLOADS_MAX, 1));
             ((JSpinner.DefaultEditor)this.jSpinner3.getEditor()).getTextField().setEditable(false);
             
-   
-       
+            boolean cbc_mac = McDownloaderMain.VERIFY_CBC_MAC;
+            
+            String verify_file = McDownloaderMain.getValueFromDB("verify_file");
+            
+            if(verify_file != null) {
+                cbc_mac = (verify_file.equals("yes"));
+            } 
+            
+            this.jCheckBox1.setSelected(cbc_mac);
     }
 
     /**
@@ -100,6 +108,7 @@ public class Settings extends javax.swing.JDialog {
         jSpinner1 = new javax.swing.JSpinner();
         jLabel3 = new javax.swing.JLabel();
         jSpinner3 = new javax.swing.JSpinner();
+        jCheckBox1 = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -141,6 +150,9 @@ public class Settings extends javax.swing.JDialog {
 
         jSpinner3.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
 
+        jCheckBox1.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        jCheckBox1.setText("Verify file integrity (when finished)");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -158,15 +170,17 @@ public class Settings extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jCheckBox1)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                    .addComponent(jLabel3)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                    .addComponent(jLabel2)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -185,7 +199,9 @@ public class Settings extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jCheckBox1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton2)
                     .addComponent(jButton3))
@@ -228,8 +244,8 @@ public class Settings extends javax.swing.JDialog {
                 McDownloaderMain.setValueInDB("default_download_dir", this.download_path);
                 McDownloaderMain.setValueInDB("default_slots", this.jSpinner1.getValue().toString());
                 McDownloaderMain.setValueInDB("max_downloads", this.jSpinner3.getValue().toString());
-           
-        
+                McDownloaderMain.setValueInDB("verify_file", this.jCheckBox1.isSelected()?"yes":"no");
+
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -279,6 +295,7 @@ public class Settings extends javax.swing.JDialog {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JCheckBox jCheckBox1;
     protected javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

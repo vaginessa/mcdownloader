@@ -71,6 +71,7 @@ class Downloader implements Runnable
     protected boolean download_started;
     protected boolean status_error;
     protected boolean restart;
+    protected boolean downloading;
 
     public void setPaused_workers(int paused_workers) {
         this.paused_workers = paused_workers;
@@ -183,6 +184,7 @@ class Downloader implements Runnable
         this.download_started=false;
         this.status_error=false;
         this.restart = restart;
+        this.downloading=false;
  
     }
     
@@ -370,12 +372,17 @@ class Downloader implements Runnable
                         }
 
                         this.printStatus("Downloading file from mega.co.nz ...");
+                        
+                        this.downloading = true;
+                        
+                        this.getPanel().getPanel().download_queue.secureNotify();
+                        
 
                         MiscTools.swingSetVisible(this.getPanel().pause_button, true, false);
                         MiscTools.swingSetVisible(this.getPanel().progress, true, false);
                         MiscTools.swingSetVisible(this.getPanel().slots_label, true, false);
                         MiscTools.swingSetVisible(this.getPanel().slots, true, false);
-                        MiscTools.swingSetVisible(this.getPanel().cbc_check, true, false);
+                        
 
                         synchronized(this.executor)
                         {
@@ -417,10 +424,14 @@ class Downloader implements Runnable
                         }
 
                         this.os.close();
+                        
+                        this.downloading=false;
+                        
+                        this.getPanel().getPanel().download_queue.secureNotify();
 
                         MiscTools.swingSetVisible(this.getPanel().pause_button, false, false);
                         MiscTools.swingSetVisible(this.getPanel().stop_button, false, false);
-                        MiscTools.swingSetVisible(this.getPanel().cbc_check, false, false);
+                     
                         MiscTools.swingSetVisible(this.getPanel().slots_label, false, false);
                         MiscTools.swingSetVisible(this.getPanel().slots, false, false);
 
@@ -430,8 +441,10 @@ class Downloader implements Runnable
                             MiscTools.swingSetValue(this.getPanel().progress, Integer.MAX_VALUE, false);
 
                             this.file.renameTo(new File(filename));
+                            
+                            String verify_file = McDownloaderMain.getValueFromDB("verify_file");
 
-                            if(MiscTools.swingIsSelected(this.panel.cbc_check))
+                            if(verify_file.equals("yes"))
                             {
                                 this.checking_cbc = true;
                    
@@ -636,8 +649,6 @@ class Downloader implements Runnable
         if(++this.paused_workers == (int)MiscTools.swingGetValue(this.getPanel().slots)) {
             
             this.printStatus("Download paused!");
-            MiscTools.swingSetVisible(this.getPanel().stop_button, true, false);
-            MiscTools.swingSetVisible(this.getPanel().keep_temp, true, false);
             MiscTools.swingSetText(this.getPanel().pause_button, "RESUME DOWNLOAD", false);
             MiscTools.swingSetEnabled(this.getPanel().pause_button, true, false);
         }
@@ -879,6 +890,8 @@ class Downloader implements Runnable
         {
             this.setExit(true);
             
+            this.getPanel().getPanel().unRegisterDownload(this.file_link);
+            
             if(this.isRetrying_mc_api())
             {
                 
@@ -901,7 +914,7 @@ class Downloader implements Runnable
                 MiscTools.swingSetEnabled(this.getPanel().keep_temp, false, false);
                 MiscTools.swingSetEnabled(this.getPanel().slots_label, false, false);
                 MiscTools.swingSetEnabled(this.getPanel().slots, false, false);
-                MiscTools.swingSetEnabled(this.getPanel().cbc_check, false, false);
+           
                 
                 if(this.pause) {
                     
@@ -937,7 +950,7 @@ class Downloader implements Runnable
         MiscTools.swingSetVisible(this.getPanel().slots_label, false, false);
         MiscTools.swingSetVisible(this.getPanel().pause_button, false, false);
         MiscTools.swingSetVisible(this.getPanel().stop_button, false, false);
-        MiscTools.swingSetVisible(this.getPanel().cbc_check, false, false);
+        
         MiscTools.swingSetVisible(this.getPanel().progress, false, false);
         MiscTools.swingSetVisible(this.getPanel().keep_temp, false, false);
         

@@ -65,7 +65,8 @@ public class About extends javax.swing.JDialog {
         });
 
         jLabel3.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jLabel3.setText("Remember this is (and it will be forever) a BETA.");
+        jLabel3.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel3.setText("(Remember this will be forever just a BETA)");
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/mcdownloader/mega_crypter.png"))); // NOI18N
         jLabel5.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
