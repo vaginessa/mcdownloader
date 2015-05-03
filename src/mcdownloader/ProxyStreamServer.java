@@ -14,12 +14,13 @@ import java.util.regex.Pattern;
 
 public class ProxyStreamServer {
     
-    public static final String VERSION="8.0";
+    public static final String VERSION="8.1";
     public static final int CONNECT_TIMEOUT=30000;
     public static final int DEFAULT_PORT=1337;
     public static final int EXP_BACKOFF_BASE=2;
     public static final int EXP_BACKOFF_SECS_RETRY=1;
     public static final int EXP_BACKOFF_MAX_WAIT_TIME=128;
+    public static final int ANTI_FLOOD=1000;
     private HttpServer httpserver;
     private McDownloaderMain panel;
     private ConcurrentHashMap<String, String[]> link_cache;
@@ -81,8 +82,10 @@ public class ProxyStreamServer {
         this.link_cache.remove(link);
     }
     
-   public String[] getMegaFileMetadata(String link, McDownloaderMain panel) throws IOException
+   public synchronized String[] getMegaFileMetadata(String link, McDownloaderMain panel) throws IOException, InterruptedException
    {
+       Thread.sleep(ANTI_FLOOD);
+       
         String[] file_info=null;
         int retry=0, error_code=0;
         boolean error;
@@ -166,8 +169,10 @@ public class ProxyStreamServer {
         return file_info;
     }
         
-   public String getMegaFileDownloadUrl(String link) throws IOException
+   public synchronized String getMegaFileDownloadUrl(String link) throws IOException, InterruptedException
    {
+       Thread.sleep(ANTI_FLOOD);
+       
         String dl_url=null;
         int retry=0, error_code;
         boolean error;

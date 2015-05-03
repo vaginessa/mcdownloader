@@ -217,7 +217,7 @@ class Downloader implements Runnable
                         
                         try {
 
-                       this.panel.getPanel().registerDownload(this.file_link, this.download_path, this.file_name, this.file_key, this.size);
+                       McDownloaderMain.registerDownload(this.file_link, this.download_path, this.file_name, this.file_key, this.size);
 
                         } catch (SQLException ex) {
 
@@ -230,7 +230,7 @@ class Downloader implements Runnable
                     
                     try {
 
-                           this.panel.getPanel().registerDownload(this.file_link, this.download_path, this.file_name, this.file_key, this.size);
+                           McDownloaderMain.registerDownload(this.file_link, this.download_path, this.file_name, this.file_key, this.size);
 
                         } catch (SQLException ex) {
 
@@ -485,7 +485,7 @@ class Downloader implements Runnable
                                 }
                                 else
                                 {                                
-                                    exit_message = "File downloaded (Integrity check CANCELED)";
+                                    exit_message = "File successfully downloaded! (but integrity check CANCELED)";
                                     
                                     this.printStatusOK(exit_message);
                                     
@@ -500,12 +500,10 @@ class Downloader implements Runnable
                             }
                             else
                             {
-                                exit_message = "File downloaded!";
+                                exit_message = "File successfully downloaded!";
                                 
                                 this.printStatusOK(exit_message);
-                                
-                                this.status_error = true;
-                                
+                                                                
                             }
                         }
                         else if(this.exit && this.fatal_error == null)
@@ -633,7 +631,7 @@ class Downloader implements Runnable
         
         this.getPanel().getPanel().download_queue.download_boxes_finished_queue.add(this.panel);
 
-        this.getPanel().getPanel().unRegisterDownload(this.file_link);
+        McDownloaderMain.unRegisterDownload(this.file_link);
         
         this.getPanel().getPanel().download_queue.secureNotify();
       
@@ -890,7 +888,7 @@ class Downloader implements Runnable
         {
             this.setExit(true);
             
-            this.getPanel().getPanel().unRegisterDownload(this.file_link);
+            McDownloaderMain.unRegisterDownload(this.file_link);
             
             if(this.isRetrying_mc_api())
             {

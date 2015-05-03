@@ -21,8 +21,7 @@ import javax.crypto.NoSuchPaddingException;
 
 public class ProxyStreamServerHandler implements HttpHandler {
     
-    public static final int ANTI_FLOOD=1000;
-    
+   
     private ProxyStreamServer proxy;
     protected McDownloaderMain panel;
         
@@ -52,8 +51,6 @@ public class ProxyStreamServerHandler implements HttpHandler {
                 
                 resheaders.add("Accept-Ranges", "bytes");
                
-               Thread.sleep(ANTI_FLOOD);
-
                 String url_path = xchg.getRequestURI().getPath();
             
             if(url_path.equals("/video/"))
