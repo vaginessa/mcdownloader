@@ -125,7 +125,7 @@ public class DownloadQueue implements Runnable {
     
     public void restartDownload(DownloaderBox dlbox)
     {
-        DownloaderBox dlbox_new = new DownloaderBox(dlbox.getPanel(), dlbox.down.file_link, dlbox.down.download_path, dlbox.down.file_name, dlbox.down.file_key, dlbox.down.size, true);
+        DownloaderBox dlbox_new = new DownloaderBox(dlbox.getPanel(), dlbox.down.file_link, dlbox.down.download_path, dlbox.down.file_name, dlbox.down.file_key, dlbox.down.size, dlbox.down.file_pass, dlbox.down.file_noexpire, true);
         
         this.panel.download_queue.download_boxes_remove_queue.add(dlbox);
         

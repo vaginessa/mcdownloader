@@ -29,7 +29,7 @@ public class DownloaderBox extends javax.swing.JPanel {
     /**
      * Creates new form NewJPanel
      */
-    public DownloaderBox(McDownloaderMain panel, String url, String download_path, String filename, String filekey, Long filesize, boolean restart) {
+    public DownloaderBox(McDownloaderMain panel, String url, String download_path, String filename, String filekey, Long filesize, String filepass, String filenoexpire, boolean restart) {
         initComponents();
         
         Font font = null;
@@ -76,7 +76,7 @@ public class DownloaderBox extends javax.swing.JPanel {
         this.copy_button.setVisible(false);
         this.restart_download.setVisible(false);
         this.provision_antiflood = (filename==null);
-        this.down = new Downloader(this, url, download_path, filename, filekey, filesize, restart, false);   
+        this.down = new Downloader(this, url, download_path, filename, filekey, filesize, filepass, filenoexpire, restart, false);   
     }
 
     

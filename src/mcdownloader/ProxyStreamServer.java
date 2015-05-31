@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 public class ProxyStreamServer {
     
-    public static final String VERSION="8.1";
+    public static final String VERSION="8.2";
     public static final int CONNECT_TIMEOUT=30000;
     public static final int DEFAULT_PORT=1337;
     public static final int EXP_BACKOFF_BASE=2;
@@ -96,7 +96,7 @@ public class ProxyStreamServer {
 
             try
             {
-                if( MiscTools.findFirstRegex("://mega\\.co\\.nz/", link, 0) != null)
+                if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", link, 0) != null)
                 {
                     MegaAPI ma = new MegaAPI();
                     
@@ -169,7 +169,7 @@ public class ProxyStreamServer {
         return file_info;
     }
         
-   public synchronized String getMegaFileDownloadUrl(String link) throws IOException, InterruptedException
+   public synchronized String getMegaFileDownloadUrl(String link, String pass_hash, String noexpire_token) throws IOException, InterruptedException
    {
        Thread.sleep(ANTI_FLOOD);
        
@@ -183,7 +183,7 @@ public class ProxyStreamServer {
             
             try
             {
-                if( MiscTools.findFirstRegex("://mega\\.co\\.nz/", link, 0) != null)
+                if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", link, 0) != null)
                 {
                     MegaAPI ma = new MegaAPI();
 
@@ -191,7 +191,7 @@ public class ProxyStreamServer {
                 }    
                 else
                 {
-                    dl_url = MegaCrypterAPI.getMegaFileDownloadUrl(link);
+                    dl_url = MegaCrypterAPI.getMegaFileDownloadUrl(link,pass_hash,noexpire_token); //CAMBIAR!!
                 }
             }
             catch(MegaAPIException e)

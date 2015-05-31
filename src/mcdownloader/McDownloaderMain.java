@@ -33,11 +33,12 @@ import javax.swing.JOptionPane;
 
 public class McDownloaderMain extends javax.swing.JFrame {
 
-    public static final String VERSION="beta 0.2.10";
+    public static final String VERSION="beta 0.3.1";
     public static final int MAX_DOWNLOADS_DEFAULT = 2;
     public static final int MAX_DOWNLOADS_MAX = 20;
     public static final String LOCK_FILE="mcdownloader.lock";
     public static final boolean VERIFY_CBC_MAC=false;
+    public static final String USER_AGENT="Mozilla/5.0 (X11; Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0";
     
     
     protected final GlobalSpeedMeter global_speed_meter;
@@ -137,7 +138,7 @@ public class McDownloaderMain extends javax.swing.JFrame {
             try (Connection conn = DriverManager.getConnection("jdbc:sqlite:"+nombreDB)
             ) {
                 Statement stat = (Statement) conn.createStatement();
-                stat.executeUpdate("CREATE TABLE IF NOT EXISTS downloads(url TEXT, path VARCHAR(255), filename VARCHAR(255), filekey VARCHAR(255), filesize UNSIGNED BIG INT, PRIMARY KEY ('url'), UNIQUE(path, filename));");
+                stat.executeUpdate("CREATE TABLE IF NOT EXISTS downloads(url TEXT, path VARCHAR(255), filename VARCHAR(255), filekey VARCHAR(255), filesize UNSIGNED BIG INT, filepass VARCHAR(64), filenoexpire VARCHAR(64), PRIMARY KEY ('url'), UNIQUE(path, filename));");
                 stat.executeUpdate("CREATE TABLE IF NOT EXISTS settings(key VARCHAR(255), value TEXT, PRIMARY KEY('key'));");
                 
                 stat.close();
@@ -190,7 +191,7 @@ public class McDownloaderMain extends javax.swing.JFrame {
           
                 while(res.next()) {
 
-                    DownloaderBox dlbox = new DownloaderBox(this, res.getString(1), res.getString(2), res.getString(3), res.getString(4), res.getLong(5), false);
+                    DownloaderBox dlbox = new DownloaderBox(this, res.getString(1), res.getString(2), res.getString(3), res.getString(4), res.getLong(5), res.getString(6), res.getString(7), false);
 
                     this.download_queue.download_boxes_provision_queue.add(dlbox);
                 }
@@ -453,7 +454,7 @@ public class McDownloaderMain extends javax.swing.JFrame {
            
             for (String url : urls ) {
 
-                DownloaderBox dlbox = new DownloaderBox(this, url, dl_path, null, null, null, false);
+                DownloaderBox dlbox = new DownloaderBox(this, url, dl_path, null, null, null,null,null, false);
                 
                 this.download_queue.download_boxes_provision_queue.add(dlbox);
 
@@ -577,7 +578,7 @@ public class McDownloaderMain extends javax.swing.JFrame {
         });
     }
     
-    protected synchronized static void registerDownload(String url, String path, String filename, String filekey, Long size) throws SQLException {
+    protected synchronized static void registerDownload(String url, String path, String filename, String filekey, Long size, String filepass, String filenoexpire) throws SQLException {
         
         String nombreDB= "mcdownloader.db";
         
@@ -587,13 +588,15 @@ public class McDownloaderMain extends javax.swing.JFrame {
            
             try (Connection conn = DriverManager.getConnection("jdbc:sqlite:"+nombreDB)
             ) {
-                PreparedStatement ps = conn.prepareStatement("INSERT INTO downloads (url, path, filename, filekey, filesize) VALUES (?,?,?,?,?)");
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO downloads (url, path, filename, filekey, filesize, filepass, filenoexpire) VALUES (?,?,?,?,?,?,?)");
                 
                 ps.setString(1, url);
                 ps.setString(2, path);
                 ps.setString(3, filename);
                 ps.setString(4, filekey);
                 ps.setLong(5, size);
+                ps.setString(6, filepass);
+                ps.setString(7, filenoexpire);
                 
                 ps.executeUpdate();
                 

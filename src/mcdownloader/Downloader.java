@@ -46,6 +46,8 @@ class Downloader implements Runnable
     protected final String file_link;
     protected String file_key;
     protected String file_name;
+    protected String file_pass;
+    protected String file_noexpire;
     protected final String download_path;
     protected int slots;
     private volatile long prog;
@@ -155,7 +157,7 @@ class Downloader implements Runnable
     }
     
     
-    public Downloader(DownloaderBox panel, String url, String download_path, String filename, String filekey, Long filesize, boolean restart, boolean debug_mode)
+    public Downloader(DownloaderBox panel, String url, String download_path, String filename, String filekey, Long filesize, String filepass, String filenoexpire, boolean restart, boolean debug_mode)
     {
         this.panel = panel;
         this.download_path = download_path;
@@ -166,6 +168,8 @@ class Downloader implements Runnable
         }
         
         this.file_key = filekey;
+        this.file_pass = filepass;
+        this.file_noexpire = filenoexpire;
         this.slots = DEFAULT_WORKERS;
         this.file_link = url;
         this.chunkdownloaders = new ArrayList();
@@ -215,9 +219,13 @@ class Downloader implements Runnable
 
                         this.file_key=file_info[2];
                         
+                        this.file_pass = file_info[3];
+                        
+                        this.file_noexpire = file_info[4];
+                        
                         try {
 
-                       McDownloaderMain.registerDownload(this.file_link, this.download_path, this.file_name, this.file_key, this.size);
+                       McDownloaderMain.registerDownload(this.file_link, this.download_path, this.file_name, this.file_key, this.size, this.file_pass, this.file_noexpire);
 
                         } catch (SQLException ex) {
 
@@ -230,7 +238,7 @@ class Downloader implements Runnable
                     
                     try {
 
-                           McDownloaderMain.registerDownload(this.file_link, this.download_path, this.file_name, this.file_key, this.size);
+                           McDownloaderMain.registerDownload(this.file_link, this.download_path, this.file_name, this.file_key, this.size, this.file_pass, this.file_noexpire);
 
                         } catch (SQLException ex) {
 
@@ -688,7 +696,7 @@ class Downloader implements Runnable
                 
                 try {
                     
-                    if( MiscTools.findFirstRegex("://mega\\.co\\.nz/", this.file_link, 0) != null)
+                    if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", this.file_link, 0) != null)
                     {
                         MegaAPI ma = new MegaAPI();
 
@@ -696,7 +704,7 @@ class Downloader implements Runnable
                     }    
                     else
                     {
-                        this.download_urls[pos] = MegaCrypterAPI.getMegaFileDownloadUrl(this.file_link);
+                        this.download_urls[pos] = MegaCrypterAPI.getMegaFileDownloadUrl(this.file_link, this.file_pass, this.file_noexpire);
                     }
  
                 }
@@ -998,7 +1006,7 @@ class Downloader implements Runnable
 
             try
             {
-                if( MiscTools.findFirstRegex("://mega\\.co\\.nz/", link, 0) != null)
+                if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", link, 0) != null)
                 {
                     MegaAPI ma = new MegaAPI();
                     
@@ -1093,7 +1101,7 @@ class Downloader implements Runnable
 
             try
             {
-                 if( MiscTools.findFirstRegex("://mega\\.co\\.nz/", this.file_link, 0) != null)
+                 if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", this.file_link, 0) != null)
                     {
                         MegaAPI ma = new MegaAPI();
 
@@ -1101,7 +1109,7 @@ class Downloader implements Runnable
                     }    
                     else
                     {
-                        dl_url = MegaCrypterAPI.getMegaFileDownloadUrl(link);
+                        dl_url = MegaCrypterAPI.getMegaFileDownloadUrl(link, this.file_pass, this.file_noexpire);
                     }
 
             }
