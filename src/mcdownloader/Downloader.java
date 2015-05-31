@@ -1003,20 +1003,19 @@ class Downloader implements Runnable
         do
         {
             error=false;
-
             try
             {
                 if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", link, 0) != null)
                 {
                     MegaAPI ma = new MegaAPI();
-                    
+
                     file_info = ma.getMegaFileMetadata(link);
                 }    
                 else
                 {
                     file_info = MegaCrypterAPI.getMegaFileMetadata(link, panel);    
                 }
-                
+
             }
             catch(MegaAPIException e)
             {
@@ -1046,40 +1045,47 @@ class Downloader implements Runnable
 
                 error_code = Integer.parseInt(e.getMessage());
 
-                if(error_code == 23)
-                {
-                    this.emergencyStopDownloader("MegaCrypter link has expired!");
-                }
-                else if(error_code == 22)
+                switch(error_code)
                 { 
-                    this.emergencyStopDownloader("MegaCrypter link is invalid!");
-                }
-                else
-                {
-                    this.retrying_mc_api = true;
-                    MiscTools.swingSetVisible(this.getPanel().stop_button, true, false);
-                    MiscTools.swingSetText(this.getPanel().stop_button, "CANCEL RETRY", false);
+                    case 22:
+                        this.emergencyStopDownloader("MegaCrypter link is not valid!");
+                        break;
 
-                    for(long i=MiscTools.getWaitTimeExpBackOff(retry++, EXP_BACKOFF_BASE, EXP_BACKOFF_SECS_RETRY, EXP_BACKOFF_MAX_WAIT_TIME); i>0 && !this.exit; i--)
-                    {
-                        if(error_code == -18)
+                    case 23:
+                        this.emergencyStopDownloader("MegaCrypter link is blocked!");
+                        break;
+
+                    case 24:
+                        this.emergencyStopDownloader("MegaCrypter link has expired!");
+                        break;
+
+                    default:
+
+                        this.retrying_mc_api = true;
+
+                        MiscTools.swingSetVisible(this.getPanel().stop_button, true, false);
+
+                        MiscTools.swingSetText(this.getPanel().stop_button, "CANCEL RETRY", false);
+
+                        for(long i=MiscTools.getWaitTimeExpBackOff(retry++, EXP_BACKOFF_BASE, EXP_BACKOFF_SECS_RETRY, EXP_BACKOFF_MAX_WAIT_TIME); i>0 && !this.exit; i--)
                         {
-                            this.printStatusError("File temporarily unavailable! (Retrying in "+i+" secs...)");
-                        }
-                        else
-                        {
-                            this.printStatusError("MegaCrypterAPIException error "+e.getMessage()+" (Retrying in "+i+" secs...)");
-                        }
+                            if(error_code == -18)
+                            {
+                                this.printStatusError("File temporarily unavailable! (Retrying in "+i+" secs...)");
+                            }
+                            else
+                            {
+                                this.printStatusError("MegaCrypterAPIException error "+e.getMessage()+" (Retrying in "+i+" secs...)");
+                            }
 
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ex) {}
-                    }
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ex) {}
+                        }
                 }
-            } 
-           
-
-        }while(!this.exit && error && error_code != -22);
+            }
+            
+        }while(!this.exit && error);
         
         if(!error) {
             MiscTools.swingSetText(this.getPanel().stop_button, "CANCEL DOWNLOAD", false);
@@ -1141,31 +1147,43 @@ class Downloader implements Runnable
 
                 error_code = Integer.parseInt(e.getMessage());
 
-                if(error_code == 23)
-                {
-                    this.emergencyStopDownloader("MegaCrypter link has expired!");
-                }
-                else
-                {
-                    this.retrying_mc_api = true;
-                    MiscTools.swingSetVisible(this.getPanel().stop_button, true, false);
-                    MiscTools.swingSetText(this.getPanel().stop_button, "CANCEL RETRY", false);
+                switch(error_code)
+                { 
+                    case 22:
+                        this.emergencyStopDownloader("MegaCrypter link is not valid!");
+                        break;
 
-                    for(long i=MiscTools.getWaitTimeExpBackOff(retry++, EXP_BACKOFF_BASE, EXP_BACKOFF_SECS_RETRY, EXP_BACKOFF_MAX_WAIT_TIME); i>0 && !this.exit; i--)
-                    {
-                        if(error_code == -18)
-                        {
-                            this.printStatusError("File temporarily unavailable! (Retrying in "+i+" secs...)");
-                        }
-                        else
-                        {
-                            this.printStatusError("MegaCrypterAPIException error "+e.getMessage()+" (Retrying in "+i+" secs...)");
-                        }
+                    case 23:
+                        this.emergencyStopDownloader("MegaCrypter link is blocked!");
+                        break;
 
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ex) {}
-                    }
+                    case 24:
+                        this.emergencyStopDownloader("MegaCrypter link has expired!");
+                        break;
+
+                    default:
+
+                        this.retrying_mc_api = true;
+
+                        MiscTools.swingSetVisible(this.getPanel().stop_button, true, false);
+
+                        MiscTools.swingSetText(this.getPanel().stop_button, "CANCEL RETRY", false);
+
+                        for(long i=MiscTools.getWaitTimeExpBackOff(retry++, EXP_BACKOFF_BASE, EXP_BACKOFF_SECS_RETRY, EXP_BACKOFF_MAX_WAIT_TIME); i>0 && !this.exit; i--)
+                        {
+                            if(error_code == -18)
+                            {
+                                this.printStatusError("File temporarily unavailable! (Retrying in "+i+" secs...)");
+                            }
+                            else
+                            {
+                                this.printStatusError("MegaCrypterAPIException error "+e.getMessage()+" (Retrying in "+i+" secs...)");
+                            }
+
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ex) {}
+                        }
                 }
             }
 

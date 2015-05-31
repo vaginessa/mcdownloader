@@ -135,32 +135,34 @@ public class ProxyStreamServer {
                 error=true;
 
                 error_code = Integer.parseInt(e.getMessage());
-
-                if(error_code == 23)
-                {
-                    throw new IOException("MegaCrypterAPIException error "+e.getMessage());
-                }
-                else if(error_code == 22)
+                
+                switch(error_code)
                 { 
-                    throw new IOException("MegaCrypterAPIException error "+e.getMessage());
-                }
-                else
-                {
-                    for(long i=MiscTools.getWaitTimeExpBackOff(retry++, EXP_BACKOFF_BASE, EXP_BACKOFF_SECS_RETRY, EXP_BACKOFF_MAX_WAIT_TIME); i>0; i--)
-                    {
-                        if(error_code == -18)
-                        {
-                            this.printStatusError("File temporarily unavailable! (Retrying in "+i+" secs...)");
-                        }
-                        else
-                        {
-                            this.printStatusError("MegaCrypterAPIException error "+e.getMessage()+" (Retrying in "+i+" secs...)");
-                        }
+                    case 22:
+                        throw new IOException("MegaCrypter link is not valid!");
 
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ex) {}
-                    }
+                    case 23:
+                        throw new IOException("MegaCrypter link is blocked!");
+
+                    case 24:
+                        throw new IOException("MegaCrypter link has expired!");
+                        
+                    default:
+                        for(long i=MiscTools.getWaitTimeExpBackOff(retry++, EXP_BACKOFF_BASE, EXP_BACKOFF_SECS_RETRY, EXP_BACKOFF_MAX_WAIT_TIME); i>0; i--)
+                        {
+                            if(error_code == -18)
+                            {
+                                this.printStatusError("File temporarily unavailable! (Retrying in "+i+" secs...)");
+                            }
+                            else
+                            {
+                                this.printStatusError("MegaCrypterAPIException error "+e.getMessage()+" (Retrying in "+i+" secs...)");
+                            }
+
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ex) {}
+                        }
                 }
             }
 
@@ -221,28 +223,34 @@ public class ProxyStreamServer {
                 error=true;
 
                 error_code = Integer.parseInt(e.getMessage());
+                
+                switch(error_code)
+                { 
+                    case 22:
+                        throw new IOException("MegaCrypter link is not valid!");
 
-                if(error_code == 23)
-                {
-                    throw new IOException("MegaCrypterAPIException error "+e.getMessage());
-                }
-                else
-                {
-                    for(long i=MiscTools.getWaitTimeExpBackOff(retry++, EXP_BACKOFF_BASE, EXP_BACKOFF_SECS_RETRY, EXP_BACKOFF_MAX_WAIT_TIME); i>0; i--)
-                    {
-                        if(error_code == -18)
-                        {
-                            this.printStatusError("File temporarily unavailable! (Retrying in "+i+" secs...)");
-                        }
-                        else
-                        {
-                            this.printStatusError("MegaCrypterAPIException error "+e.getMessage()+" (Retrying in "+i+" secs...)");
-                        }
+                    case 23:
+                        throw new IOException("MegaCrypter link is blocked!");
 
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ex) {}
-                    }
+                    case 24:
+                        throw new IOException("MegaCrypter link has expired!");
+                        
+                    default:
+                        for(long i=MiscTools.getWaitTimeExpBackOff(retry++, EXP_BACKOFF_BASE, EXP_BACKOFF_SECS_RETRY, EXP_BACKOFF_MAX_WAIT_TIME); i>0; i--)
+                        {
+                            if(error_code == -18)
+                            {
+                                this.printStatusError("File temporarily unavailable! (Retrying in "+i+" secs...)");
+                            }
+                            else
+                            {
+                                this.printStatusError("MegaCrypterAPIException error "+e.getMessage()+" (Retrying in "+i+" secs...)");
+                            }
+
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ex) {}
+                        }
                 }
             }
 
