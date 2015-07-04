@@ -41,6 +41,8 @@ class Downloader implements Runnable
     public static final int EXP_BACKOFF_BASE=2;
     public static final int EXP_BACKOFF_SECS_RETRY=1;
     public static final int EXP_BACKOFF_MAX_WAIT_TIME=128;
+    public static final int GC_CBC_CHUNKS=10;
+    public static final int ANTI_FLOOD=500;
     protected final DownloaderBox panel;
     protected long size;
     protected final String file_link;
@@ -219,9 +221,12 @@ class Downloader implements Runnable
 
                         this.file_key=file_info[2];
                         
-                        this.file_pass = file_info[3];
+                        if(file_info.length == 5)
+                        {
+                            this.file_pass = file_info[3];
                         
-                        this.file_noexpire = file_info[4];
+                            this.file_noexpire = file_info[4];
+                        }
                         
                         try {
 
@@ -452,59 +457,60 @@ class Downloader implements Runnable
                             
                             String verify_file = McDownloaderMain.getValueFromDB("verify_file");
 
-                            if(verify_file.equals("yes"))
+                            if(verify_file!=null && verify_file.equals("yes"))
                             {
                                 this.checking_cbc = true;
                    
-                                this.printStatus("Checking file integrity, please wait...");
-                                MiscTools.swingSetVisible(this.getPanel().stop_button, true, false);
-                                MiscTools.swingSetText(this.getPanel().stop_button, "CANCEL CHECK", false);
-
+                                this.printStatus("Waiting to check file integrity...");
+                                
                                 this.prog = 0;
+                                
                                 MiscTools.swingSetValue(this.getPanel().progress, 0, false);
-
-                                boolean cbc_ok;
                                 
-                                this.printDebug("Downloader: bye bye");
+                                synchronized(getClass()) {
+                                    
+                                    this.printStatus("Checking file integrity, please wait...");
+                                   
+                                    MiscTools.swingSetVisible(this.getPanel().stop_button, true, false);
+                                    MiscTools.swingSetText(this.getPanel().stop_button, "CANCEL CHECK", false);
 
-                                this.getPanel().getPanel().download_queue.download_boxes_running_list.remove(this.panel);
+                                    boolean cbc_ok;
+
+                                    this.getPanel().getPanel().download_queue.download_boxes_running_list.remove(this.panel);
+
+                                    this.getPanel().getPanel().download_queue.download_boxes_cbc_list.add(this.panel);
+
+                                    this.getPanel().getPanel().download_queue.secureNotify();
+
+                                    if((cbc_ok = this.verifyFileCBCMAC(filename)))
+                                    {
+                                        exit_message = "File successfully downloaded! (Integrity check PASSED)";
+
+                                        this.printStatusOK(exit_message);
+                                    }
+                                    else if(!this.exit)
+                                    {
+                                        exit_message = "BAD NEWS :( File is DAMAGED!";
+
+                                        this.printStatusError(exit_message);
+
+                                        this.status_error = true;
+                                    }
+                                    else
+                                    {                                
+                                        exit_message = "File successfully downloaded! (but integrity check CANCELED)";
+
+                                        this.printStatusOK(exit_message);
+
+                                        this.status_error = true;
+
+                                    }
+
+                                    MiscTools.swingSetVisible(this.getPanel().stop_button, false, false);
+
+                                    MiscTools.swingSetValue(this.getPanel().progress, Integer.MAX_VALUE, false);
                                 
-                                this.getPanel().getPanel().download_queue.download_boxes_cbc_list.add(this.panel);
-  
-                                this.getPanel().getPanel().download_queue.secureNotify();
-                                    
-                                if((cbc_ok = this.verifyFileCBCMAC(filename)))
-                                {
-                                    exit_message = "File successfully downloaded! (Integrity check PASSED)";
-                                    
-                                    this.printStatusOK(exit_message);
-                                    
-       
                                 }
-                                else if(!this.exit)
-                                {
-                                    exit_message = "BAD NEWS :( File is DAMAGED!";
-                                    
-                                    this.printStatusError(exit_message);
-                                    
-                                    this.status_error = true;
-                                    
-                                    
-                                }
-                                else
-                                {                                
-                                    exit_message = "File successfully downloaded! (but integrity check CANCELED)";
-                                    
-                                    this.printStatusOK(exit_message);
-                                    
-                                    this.status_error = true;
-
-                                }
-
-                                MiscTools.swingSetVisible(this.getPanel().stop_button, false, false);
-
-                                MiscTools.swingSetValue(this.getPanel().progress, Integer.MAX_VALUE, false);
-                                
                             }
                             else
                             {
@@ -631,6 +637,8 @@ class Downloader implements Runnable
             this.printDebug(ex.getMessage());
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
             this.printDebug(ex.getMessage());
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Downloader.class.getName()).log(Level.SEVERE, null, ex);
         }        
         
         this.printDebug("Downloader: bye bye");
@@ -821,33 +829,42 @@ class Downloader implements Runnable
         
         FileInputStream is = new FileInputStream(f);
         
-        Chunk chunk=null;
-        
         long chunk_id=1;
+        
         long tot=0;
- 
+        
+        int[] chunk_mac = new int[4];
+        
+        byte[] chunk_buffer = new byte[8*1024];
+        
+        byte[] byte_block = new byte[16];
+        
+        int[] int_block;
+        
+        int re, reads, to_read;
+
         try
         {
             while(!this.exit)
             {
-                chunk = new Chunk(chunk_id++, this.size, null);
+                Chunk chunk = new Chunk(chunk_id++, this.size, null);
 
                 tot+=chunk.getSize();
-                int[] chunk_mac = {iv[0], iv[1], iv[0], iv[1]};
-                int re;
-                byte[] buffer = new byte[8*1024];
-                byte[] byte_block = new byte[16];
-                int[] int_block;
-                int reads = -2;
-                int to_read;
-
+                
+                chunk_mac[0]=iv[0];
+                chunk_mac[1]=iv[1];
+                chunk_mac[2]=iv[0];
+                chunk_mac[3]=iv[1];
+                
+                reads = -2;
+                
                 do
                 {
-                    to_read = chunk.getSize() - chunk.getOutputStream().size() >= buffer.length?buffer.length:(int)(chunk.getSize() - chunk.getOutputStream().size());
+                    to_read = chunk.getSize() - chunk.getOutputStream().size() >= chunk_buffer.length?chunk_buffer.length:(int)(chunk.getSize() - chunk.getOutputStream().size());
 
-                    re=is.read(buffer, 0, to_read);
+                    re=is.read(chunk_buffer, 0, to_read);
 
-                    chunk.getOutputStream().write(buffer, 0, re);
+                    chunk.getOutputStream().write(chunk_buffer, 0, re);
 
                 }while(!this.exit && chunk.getOutputStream().size()<chunk.getSize());
 
@@ -861,7 +878,7 @@ class Downloader implements Runnable
                              byte_block[i]=0;
                      }
 
-                     int_block = MiscTools.bin2i32a(byte_block);
+                    int_block = MiscTools.bin2i32a(byte_block);
 
                      for(int i=0; i<chunk_mac.length; i++)
                      {
@@ -879,6 +896,7 @@ class Downloader implements Runnable
                 }
 
                 file_mac = MiscTools.bin2i32a(cryptor.doFinal(MiscTools.i32a2bin(file_mac)));
+                
             }
 
         } catch (ChunkInvalidIdException e){}
@@ -901,13 +919,13 @@ class Downloader implements Runnable
             if(this.isRetrying_mc_api())
             {
                 
-                this.printStatus("Canceling retrying, please wait...");
+                this.printStatus("Retrying cancelled!");
                 MiscTools.swingSetEnabled(this.getPanel().stop_button, false, false);
             }
             else if(this.isChecking_cbc())
             {
                 
-                this.printStatus("Canceling verification, please wait...");
+                this.printStatus("Verification cancelled!");
                 MiscTools.swingSetEnabled(this.getPanel().stop_button, false, false);
             }
             else
@@ -994,8 +1012,9 @@ class Downloader implements Runnable
         }
     }
     
-    public String[] getMegaFileMetadata(String link, McDownloaderMain panel) throws IOException
+    public String[] getMegaFileMetadata(String link, McDownloaderMain panel) throws IOException, InterruptedException
     {
+ 
         String[] file_info=null;
         int retry=0, error_code=0;
         boolean error;
@@ -1003,17 +1022,24 @@ class Downloader implements Runnable
         do
         {
             error=false;
+            
             try
             {
-                if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", link, 0) != null)
-                {
-                    MegaAPI ma = new MegaAPI();
+                 synchronized(getClass()) {
+                     
+                    Thread.sleep(ANTI_FLOOD);
+                     
+                    if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", link, 0) != null)
+                    {
+                        MegaAPI ma = new MegaAPI();
 
-                    file_info = ma.getMegaFileMetadata(link);
-                }    
-                else
-                {
-                    file_info = MegaCrypterAPI.getMegaFileMetadata(link, panel);    
+                        file_info = ma.getMegaFileMetadata(link);
+                    }    
+                    else
+                    {
+                        file_info = MegaCrypterAPI.getMegaFileMetadata(link, panel);    
+                    }
+                     
                 }
 
             }
@@ -1093,10 +1119,13 @@ class Downloader implements Runnable
         }
         
         return file_info;
+
+        
     }
     
-    public String getMegaFileDownloadUrl(String link) throws IOException
+    public String getMegaFileDownloadUrl(String link) throws IOException, InterruptedException
     {
+
         String dl_url=null;
         int retry=0, error_code;
         boolean error;
@@ -1107,7 +1136,11 @@ class Downloader implements Runnable
 
             try
             {
-                 if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", this.file_link, 0) != null)
+                synchronized(getClass())
+                {
+                    Thread.sleep(ANTI_FLOOD);
+                    
+                    if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", this.file_link, 0) != null)
                     {
                         MegaAPI ma = new MegaAPI();
 
@@ -1117,7 +1150,7 @@ class Downloader implements Runnable
                     {
                         dl_url = MegaCrypterAPI.getMegaFileDownloadUrl(link, this.file_pass, this.file_noexpire);
                     }
-
+                }
             }
             catch(MegaAPIException e)
             {
@@ -1195,7 +1228,8 @@ class Downloader implements Runnable
         }
         
         return dl_url;
-    }
-    
-    
+        }
 }
+    
+    
+

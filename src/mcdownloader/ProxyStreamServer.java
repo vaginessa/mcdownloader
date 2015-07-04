@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 public class ProxyStreamServer {
     
-    public static final String VERSION="8.2";
+    public static final String VERSION="9.2";
     public static final int CONNECT_TIMEOUT=30000;
     public static final int DEFAULT_PORT=1337;
     public static final int EXP_BACKOFF_BASE=2;
@@ -82,9 +82,9 @@ public class ProxyStreamServer {
         this.link_cache.remove(link);
     }
     
-   public synchronized String[] getMegaFileMetadata(String link, McDownloaderMain panel) throws IOException, InterruptedException
+   public String[] getMegaFileMetadata(String link, McDownloaderMain panel) throws IOException, InterruptedException
    {
-       Thread.sleep(ANTI_FLOOD);
+        
        
         String[] file_info=null;
         int retry=0, error_code=0;
@@ -96,7 +96,10 @@ public class ProxyStreamServer {
 
             try
             {
-                if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", link, 0) != null)
+                synchronized(this.getClass())
+                {
+                    Thread.sleep(ANTI_FLOOD);
+                    if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", link, 0) != null)
                 {
                     MegaAPI ma = new MegaAPI();
                     
@@ -106,7 +109,8 @@ public class ProxyStreamServer {
                 {
                     file_info = MegaCrypterAPI.getMegaFileMetadata(link, panel);    
                 } 
-
+                    
+                }
             }
             catch(MegaAPIException e)
             {
@@ -171,9 +175,9 @@ public class ProxyStreamServer {
         return file_info;
     }
         
-   public synchronized String getMegaFileDownloadUrl(String link, String pass_hash, String noexpire_token) throws IOException, InterruptedException
+   public String getMegaFileDownloadUrl(String link, String pass_hash, String noexpire_token) throws IOException, InterruptedException
    {
-       Thread.sleep(ANTI_FLOOD);
+       
        
         String dl_url=null;
         int retry=0, error_code;
@@ -185,16 +189,22 @@ public class ProxyStreamServer {
             
             try
             {
-                if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", link, 0) != null)
-                {
-                    MegaAPI ma = new MegaAPI();
+                 synchronized(this.getClass())
+                 {
+                     Thread.sleep(ANTI_FLOOD);
+                     
+                     if( MiscTools.findFirstRegex("://mega(\\.co)?\\.nz/", link, 0) != null)
+                    {
+                        MegaAPI ma = new MegaAPI();
 
-                    dl_url = ma.getMegaFileDownloadUrl(link);
-                }    
-                else
-                {
-                    dl_url = MegaCrypterAPI.getMegaFileDownloadUrl(link,pass_hash,noexpire_token); //CAMBIAR!!
-                }
+                        dl_url = ma.getMegaFileDownloadUrl(link);
+                    }    
+                    else
+                    {
+                        dl_url = MegaCrypterAPI.getMegaFileDownloadUrl(link,pass_hash,noexpire_token); //CAMBIAR!!
+                    }
+                 }
+                
             }
             catch(MegaAPIException e)
             {

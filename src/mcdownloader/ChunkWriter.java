@@ -113,7 +113,7 @@ public class ChunkWriter implements Runnable {
 
                         this.downloader.printDebug("Chunk ["+this.last_chunk_id_written+"] written to disk!");
                     }
-
+                    
                     if(!this.downloader.isExit() && this.downloader.chunkDownloadersRunning() && this.bytes_written < this.file_size)
                     {
                         synchronized(this.chunk_queue)
@@ -123,7 +123,7 @@ public class ChunkWriter implements Runnable {
                         }
                     }
                 }
-                
+
             } catch (InterruptedException | IOException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | InvalidAlgorithmParameterException ex) {
                 
                 this.downloader.printDebug(ex.getMessage());

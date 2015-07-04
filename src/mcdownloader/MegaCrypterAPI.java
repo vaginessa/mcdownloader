@@ -97,12 +97,7 @@ public class MegaCrypterAPI {
                 Logger.getLogger(MegaCrypterAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
-        if(!dl_url.startsWith("http"))
-        {
-            throw new MegaCrypterAPIException("Bad mega temp url!");
-        }
-       
+
         return dl_url;
     }
     

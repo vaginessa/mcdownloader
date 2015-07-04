@@ -33,7 +33,7 @@ import javax.swing.JOptionPane;
 
 public class McDownloaderMain extends javax.swing.JFrame {
 
-    public static final String VERSION="beta 0.3.4";
+    public static final String VERSION="beta 0.3.17";
     public static final int MAX_DOWNLOADS_DEFAULT = 2;
     public static final int MAX_DOWNLOADS_MAX = 20;
     public static final String LOCK_FILE="mcdownloader.lock";
@@ -200,11 +200,8 @@ public class McDownloaderMain extends javax.swing.JFrame {
                 
                 conn.close();
                  
-                synchronized(this.download_queue.download_boxes_provision_queue) {
-                    this.download_queue.download_boxes_provision_queue.notify();
-                }
+                this.download_queue.secureNotify();
                 
-
             }
         }catch(ClassNotFoundException | SQLException ex){
              ex.printStackTrace();
@@ -285,8 +282,11 @@ public class McDownloaderMain extends javax.swing.JFrame {
         global_speed.setFont(new java.awt.Font("Dialog", 1, 54)); // NOI18N
         global_speed.setText("Speed");
 
+        proxy_status.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+
         status.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
 
+        close_all_finished.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         close_all_finished.setText("Close all finished");
         close_all_finished.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -295,6 +295,7 @@ public class McDownloaderMain extends javax.swing.JFrame {
         });
 
         pause_all.setBackground(new java.awt.Color(255, 153, 0));
+        pause_all.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         pause_all.setForeground(new java.awt.Color(255, 255, 255));
         pause_all.setText("PAUSE ALL");
         pause_all.addActionListener(new java.awt.event.ActionListener() {
@@ -304,9 +305,9 @@ public class McDownloaderMain extends javax.swing.JFrame {
         });
 
         jMenu1.setText("File");
-        jMenu1.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        jMenu1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
 
-        jMenuItem2.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        jMenuItem2.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jMenuItem2.setText("New download");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -316,7 +317,7 @@ public class McDownloaderMain extends javax.swing.JFrame {
         jMenu1.add(jMenuItem2);
         jMenu1.add(jSeparator1);
 
-        jMenuItem3.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        jMenuItem3.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jMenuItem3.setText("Hide to tray");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -326,7 +327,7 @@ public class McDownloaderMain extends javax.swing.JFrame {
         jMenu1.add(jMenuItem3);
         jMenu1.add(jSeparator2);
 
-        menu_clean_all.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        menu_clean_all.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         menu_clean_all.setText("Clean all waiting");
         menu_clean_all.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -336,7 +337,7 @@ public class McDownloaderMain extends javax.swing.JFrame {
         jMenu1.add(menu_clean_all);
         jMenu1.add(jSeparator3);
 
-        jMenuItem5.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        jMenuItem5.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jMenuItem5.setText("EXIT");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -348,9 +349,9 @@ public class McDownloaderMain extends javax.swing.JFrame {
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Edit");
-        jMenu2.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        jMenu2.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
 
-        jMenuItem1.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        jMenuItem1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jMenuItem1.setText("Settings");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -362,9 +363,9 @@ public class McDownloaderMain extends javax.swing.JFrame {
         jMenuBar1.add(jMenu2);
 
         jMenu4.setText("Help");
-        jMenu4.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        jMenu4.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
 
-        jMenuItem4.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        jMenuItem4.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jMenuItem4.setText("About");
         jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -400,7 +401,7 @@ public class McDownloaderMain extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(171, 171, 171)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
                         .addGap(148, 148, 148))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
@@ -419,7 +420,7 @@ public class McDownloaderMain extends javax.swing.JFrame {
                         .addGap(6, 6, 6)
                         .addComponent(status, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -460,9 +461,9 @@ public class McDownloaderMain extends javax.swing.JFrame {
 
             }
             
-            synchronized(this.download_queue.download_boxes_provision_queue) {
-                    this.download_queue.download_boxes_provision_queue.notify();
-                }
+           
+            this.download_queue.secureNotify();
+                
         }
         
         dialog.dispose();

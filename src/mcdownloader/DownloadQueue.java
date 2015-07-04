@@ -11,8 +11,6 @@ import java.util.logging.Logger;
 
 public class DownloadQueue implements Runnable {
     
-    public static final int PROVISION_ANTIFLOOD=500;
-
     protected final ConcurrentLinkedQueue<DownloaderBox> download_boxes_provision_queue;
     
     protected final ConcurrentLinkedQueue<DownloaderBox> download_boxes_start_queue;
@@ -24,6 +22,8 @@ public class DownloadQueue implements Runnable {
     protected final CopyOnWriteArrayList<DownloaderBox> download_boxes_running_list;
     
     protected final CopyOnWriteArrayList<DownloaderBox> download_boxes_cbc_list;
+    
+    protected final CopyOnWriteArrayList<DownloaderBox> download_boxes_provisioning_list;
     
     protected final McDownloaderMain panel;
     
@@ -41,6 +41,7 @@ public class DownloadQueue implements Runnable {
         this.download_boxes_finished_queue = new ConcurrentLinkedQueue();
         this.download_boxes_running_list = new  CopyOnWriteArrayList();
         this.download_boxes_cbc_list = new  CopyOnWriteArrayList();
+        this.download_boxes_provisioning_list = new  CopyOnWriteArrayList();
         this.notified = false;
     }
     
@@ -53,6 +54,8 @@ public class DownloadQueue implements Runnable {
     public synchronized void registerProvisionedDownload(DownloaderBox dlbox) 
     {
         this.provision_pending--;
+        
+        this.download_boxes_provisioning_list.remove(dlbox);
         
         if(dlbox.down.provision_ok) {
             
@@ -122,23 +125,7 @@ public class DownloadQueue implements Runnable {
             
         this.secureNotify();
     }
-    
-    public void restartDownload(DownloaderBox dlbox)
-    {
-        DownloaderBox dlbox_new = new DownloaderBox(dlbox.getPanel(), dlbox.down.file_link, dlbox.down.download_path, dlbox.down.file_name, dlbox.down.file_key, dlbox.down.size, dlbox.down.file_pass, dlbox.down.file_noexpire, true);
         
-        this.panel.download_queue.download_boxes_remove_queue.add(dlbox);
-        
-        this.secureNotify();
-        
-        this.panel.download_queue.download_boxes_provision_queue.add(dlbox_new);
-        
-        synchronized(this.panel.download_queue.download_boxes_provision_queue) 
-        {
-            this.panel.download_queue.download_boxes_provision_queue.notify();
-        }
-    }
-    
     public synchronized void sortDownloadStartQueue() 
     {
         ArrayList<DownloaderBox> dl_box_list = new ArrayList();
@@ -162,50 +149,30 @@ public class DownloadQueue implements Runnable {
         
             try {
                 
-                Executors.newCachedThreadPool().execute(() -> {
-
-                    try { 
-
-                        while(true) {
-                            
-                            if(!this.download_boxes_provision_queue.isEmpty())
-                            {
-                                this.provision_pending+=this.download_boxes_provision_queue.size();
-                    
-                                MiscTools.swingSetText(this.panel.status, this.provision_pending + " downloads waiting for provision...", false);
-
-                                while(!this.download_boxes_provision_queue.isEmpty())
-                                {
-                                    DownloaderBox dlbox = this.download_boxes_provision_queue.poll();
-
-                                    if(dlbox.provision_antiflood) {
-                                        Thread.sleep(PROVISION_ANTIFLOOD);
-                                    }
-
-                                    Executors.newCachedThreadPool().execute(() -> {
-
-                                        dlbox.down.provisionDownload();
-
-                                        this.registerProvisionedDownload(dlbox);
-
-                                    });
-                                }
-                            }
-                            
-                            synchronized(this.download_boxes_provision_queue)
-                            {
-                                this.download_boxes_provision_queue.wait();
-                            }
-                        }
-
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(DownloadQueue.class.getName()).log(Level.SEVERE, null, ex);
-                    }   
-                });
-                
-
                 while(true)
                 {
+                    if(!this.download_boxes_provision_queue.isEmpty())
+                    {
+                        this.provision_pending+=this.download_boxes_provision_queue.size();
+
+                        MiscTools.swingSetText(this.panel.status, this.provision_pending + " downloads waiting for provision...", false);
+
+                        while(!this.download_boxes_provision_queue.isEmpty())
+                        {
+                            DownloaderBox dlbox = this.download_boxes_provision_queue.poll();
+
+                            Executors.newCachedThreadPool().execute(() -> {
+
+                                dlbox.down.provisionDownload();
+
+                                this.registerProvisionedDownload(dlbox);
+
+                            });
+                            
+                            this.download_boxes_provisioning_list.add(dlbox);
+                        }
+                    }
+
                     while(!this.download_boxes_remove_queue.isEmpty()) {
                     
                         MiscTools.swingSetText(this.panel.status, "Removing ("+this.download_boxes_remove_queue.size()+")...", false);
@@ -258,6 +225,12 @@ public class DownloadQueue implements Runnable {
                             MiscTools.swingSetVisible(this.panel.pause_all, true, false);
 
                         }
+                    }
+                    
+                    it = this.download_boxes_provisioning_list.iterator();
+
+                    while(it.hasNext()) {
+                        this.panel.jPanel2.add(it.next());
                     }
                     
                     it = this.download_boxes_cbc_list.iterator();

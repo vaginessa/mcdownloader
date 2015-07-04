@@ -113,13 +113,13 @@ public class DownloaderBox extends javax.swing.JPanel {
 
         setBorder(new javax.swing.border.LineBorder(new java.awt.Color(153, 204, 255), 4, true));
 
-        status.setFont(new java.awt.Font("Dialog", 1, 16)); // NOI18N
+        status.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         status.setText("status");
 
-        slots_label.setFont(new java.awt.Font("Dialog", 1, 16)); // NOI18N
+        slots_label.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         slots_label.setText("Slots");
 
-        slots.setFont(new java.awt.Font("Dialog", 1, 16)); // NOI18N
+        slots.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         slots.setToolTipText("Slots");
         slots.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -127,17 +127,17 @@ public class DownloaderBox extends javax.swing.JPanel {
             }
         });
 
-        rem_time.setFont(new java.awt.Font("Verdana", 1, 16)); // NOI18N
+        rem_time.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
         rem_time.setText("remaining_time");
 
-        speed.setFont(new java.awt.Font("Verdana", 3, 24)); // NOI18N
+        speed.setFont(new java.awt.Font("Verdana", 3, 26)); // NOI18N
         speed.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         speed.setText("speed");
 
         progress.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
 
         pause_button.setBackground(new java.awt.Color(255, 153, 0));
-        pause_button.setFont(new java.awt.Font("Verdana", 1, 12)); // NOI18N
+        pause_button.setFont(new java.awt.Font("Verdana", 1, 14)); // NOI18N
         pause_button.setForeground(java.awt.Color.white);
         pause_button.setText("PAUSE DOWNLOAD");
         pause_button.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -147,6 +147,7 @@ public class DownloaderBox extends javax.swing.JPanel {
         });
 
         stop_button.setBackground(new java.awt.Color(255, 0, 0));
+        stop_button.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         stop_button.setForeground(java.awt.Color.white);
         stop_button.setText("CANCEL DOWNLOAD");
         stop_button.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -159,10 +160,11 @@ public class DownloaderBox extends javax.swing.JPanel {
         keep_temp.setSelected(true);
         keep_temp.setText("Keep temp file");
 
-        fname_label.setFont(new java.awt.Font("Dialog", 1, 16)); // NOI18N
+        fname_label.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         fname_label.setForeground(new java.awt.Color(51, 51, 255));
         fname_label.setText("file_name");
 
+        closebutton.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         closebutton.setText("Close");
         closebutton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -170,6 +172,7 @@ public class DownloaderBox extends javax.swing.JPanel {
             }
         });
 
+        copy_button.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         copy_button.setText("Copy mc link");
         copy_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -178,6 +181,7 @@ public class DownloaderBox extends javax.swing.JPanel {
         });
 
         restart_download.setBackground(new java.awt.Color(51, 51, 255));
+        restart_download.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         restart_download.setForeground(new java.awt.Color(255, 255, 255));
         restart_download.setText("Restart");
         restart_download.addActionListener(new java.awt.event.ActionListener() {
@@ -196,7 +200,7 @@ public class DownloaderBox extends javax.swing.JPanel {
                     .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(speed, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
                         .addComponent(pause_button))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(rem_time)
@@ -248,7 +252,7 @@ public class DownloaderBox extends javax.swing.JPanel {
                     .addComponent(stop_button)
                     .addComponent(closebutton)
                     .addComponent(restart_download))
-                .addContainerGap(14, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -351,7 +355,13 @@ public class DownloaderBox extends javax.swing.JPanel {
     private void restart_downloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restart_downloadActionPerformed
         // TODO add your handling code here:
         
-        this.panel.download_queue.restartDownload(this);
+        DownloaderBox dlbox_new = new DownloaderBox(this.getPanel(), this.down.file_link, this.down.download_path, this.down.file_name, this.down.file_key, this.down.size, this.down.file_pass, this.down.file_noexpire, true);
+        
+        this.panel.download_queue.download_boxes_remove_queue.add(this);
+
+        this.panel.download_queue.download_boxes_provision_queue.add(dlbox_new);
+        
+        this.panel.download_queue.secureNotify();
     }//GEN-LAST:event_restart_downloadActionPerformed
 
 

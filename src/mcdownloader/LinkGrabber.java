@@ -72,7 +72,7 @@ public class LinkGrabber extends javax.swing.JDialog {
         jTextArea1.addMouseListener(new ContextMenuMouseListener());
 
         jButton1.setBackground(new java.awt.Color(102, 204, 255));
-        jButton1.setFont(new java.awt.Font("Dialog", 1, 20)); // NOI18N
+        jButton1.setFont(new java.awt.Font("Dialog", 1, 22)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Let's dance, baby");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -84,7 +84,7 @@ public class LinkGrabber extends javax.swing.JDialog {
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         jLabel1.setText("Put your MEGA/MegaCrypter link/s here (one per line):");
 
-        jButton2.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jButton2.setFont(new java.awt.Font("Dialog", 1, 16)); // NOI18N
         jButton2.setText("Change it");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -92,7 +92,7 @@ public class LinkGrabber extends javax.swing.JDialog {
             }
         });
 
-        jLabel2.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Dialog", 1, 16)); // NOI18N
         jLabel2.setText("Download to: ");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
