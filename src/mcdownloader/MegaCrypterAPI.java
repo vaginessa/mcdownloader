@@ -148,6 +148,8 @@ public class MegaCrypterAPI {
         }
       
         String fname = MiscTools.findFirstRegex("\"name\" *: *\"([^\"]+)\"", data, 1);
+        
+        String fpath = MiscTools.findFirstRegex("\"path\" *: *\"([^\"]+)\"", data, 1);
 
         String file_size = MiscTools.findFirstRegex("\"size\" *: *([0-9]+)", data, 1);
 
@@ -220,6 +222,13 @@ public class MegaCrypterAPI {
 
                         fname = new String(decrypted_name);
                         
+                        if(fpath != null)
+                        {
+                            byte[] decrypted_fpath = decrypter.doFinal(MiscTools.BASE642Bin(fpath));
+
+                            fpath = new String(decrypted_fpath);
+                        }
+                        
                         pass=MiscTools.Bin2BASE64(pass_hash);
                         
                     }
@@ -227,6 +236,11 @@ public class MegaCrypterAPI {
                     } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
                         Logger.getLogger(MegaCrypterAPI.class.getName()).log(Level.SEVERE, null, ex);
                     }
+        }
+        
+        if(fpath != null)
+        {
+            fname = fpath+fname;
         }
 
         String file_data[] = {fname.replace('[','(').replace(']',')'), file_size, fkey, pass, noexpire_token};

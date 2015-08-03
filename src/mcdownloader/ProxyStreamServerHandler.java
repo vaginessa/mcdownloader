@@ -21,7 +21,6 @@ import javax.crypto.NoSuchPaddingException;
 
 public class ProxyStreamServerHandler implements HttpHandler {
     
-   
     private ProxyStreamServer proxy;
     
     protected McDownloaderMain panel;
@@ -144,15 +143,15 @@ public class ProxyStreamServerHandler implements HttpHandler {
                    
                    String temp_url;
                    
-                   if(cache_info[3]!=null) {
+                   if(cache_info[5]!=null) {
                        
-                       temp_url = cache_info[3];
+                       temp_url = cache_info[5];
                        
                        if(!this.proxy.checkDownloadUrl(temp_url)) {
                            
                            temp_url = this.proxy.getMegaFileDownloadUrl(link,this.pass_hash,this.noexpire_token);
                            
-                           cache_info[3] = temp_url;
+                           cache_info[5] = temp_url;
 
                            this.proxy.updateLinkCache(link, cache_info);
                        }
@@ -160,7 +159,7 @@ public class ProxyStreamServerHandler implements HttpHandler {
                    } else {
                        temp_url = this.proxy.getMegaFileDownloadUrl(link,this.pass_hash,this.noexpire_token);
                        
-                       cache_info[3] = temp_url;
+                       cache_info[5] = temp_url;
                        
                        this.proxy.updateLinkCache(link, cache_info);
                    }

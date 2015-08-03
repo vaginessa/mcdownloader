@@ -42,7 +42,8 @@ class Downloader implements Runnable
     public static final int EXP_BACKOFF_SECS_RETRY=1;
     public static final int EXP_BACKOFF_MAX_WAIT_TIME=128;
     public static final int GC_CBC_CHUNKS=10;
-    public static final int ANTI_FLOOD=500;
+    public static final int ANTI_FLOOD=250;
+    public static final Object cbc_lock=new Object();
     protected final DownloaderBox panel;
     protected long size;
     protected final String file_link;
@@ -312,9 +313,15 @@ class Downloader implements Runnable
                 
                 this.file = new File(filename);
                 
+                if(this.file.getParent()!=null)
+                {
+                    File path = new File(this.file.getParent());
+                
+                    path.mkdirs();
+                }
+                
                 if(!this.file.exists()) 
                 {
-                    
                     this.printStatus("Starting download (retrieving MEGA temp link), please wait...");
                     
                     this.download_urls[0] = this.getMegaFileDownloadUrl(this.file_link);
@@ -336,7 +343,6 @@ class Downloader implements Runnable
 
                         if(this.file.exists())
                         {
-
                             this.printStatus("File exists, resuming download...");
 
                             long max_size = this.calculateMaxTempFileSize(this.file.length());
@@ -467,7 +473,7 @@ class Downloader implements Runnable
                                 
                                 MiscTools.swingSetValue(this.getPanel().progress, 0, false);
                                 
-                                synchronized(getClass()) {
+                                synchronized(Downloader.cbc_lock) {
                                     
                                     this.printStatus("Checking file integrity, please wait...");
                                    
@@ -748,7 +754,11 @@ class Downloader implements Runnable
 
         this.chunkdownloaders.add(c);
 
-        this.executor.execute(c);
+        try {
+            
+            this.executor.execute(c);
+            
+        }catch(java.util.concurrent.RejectedExecutionException e){}
     }
     
     public synchronized void stopLastStartedSlot()

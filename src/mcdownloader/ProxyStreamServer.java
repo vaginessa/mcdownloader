@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 public class ProxyStreamServer {
     
-    public static final String VERSION="9.2";
+    public static final String VERSION="9.3";
     public static final int CONNECT_TIMEOUT=30000;
     public static final int DEFAULT_PORT=1337;
     public static final int EXP_BACKOFF_BASE=2;
